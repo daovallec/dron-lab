@@ -1,17 +1,23 @@
 package com.dron.utils;
 
+import java.util.List;
+
 import com.dron.constants.Constants;
 import com.dron.dto.DestinoDTO;
+import com.dron.exception.OutRangeException;
 
 public class Util {
 	
 	private static int maxX = 10;
 	private static int maxY = 10;
+	private static int minX = -10;
+	private static int minY = -10;
 	
-	 public static void calcularCordenada(String camino, DestinoDTO dron) {
+	 public static void calcularCordenada(String camino, DestinoDTO dron) throws OutRangeException {
 		 if(camino.isEmpty()) {
 			 return;
 		 }
+		 
 		 switch (dron.getOrientacion()) {
 		case Constants.NORTH:
 			northOrientation(camino.charAt(0),dron);
@@ -36,60 +42,68 @@ public class Util {
 		 
 	 }
 	 
-	 public static void northOrientation(char actual, DestinoDTO dron) {
-		 if(actual == Constants.MOVE_LEFT) {
+	 public static void northOrientation(char actual, DestinoDTO dron) throws OutRangeException {
+		 if(Character.toUpperCase(actual) == Constants.MOVE_LEFT) {
 				dron.setOrientacion(Constants.EAST);
-			}else if(actual == Constants.MOVE_RIGHT) {
+			}else if(Character.toUpperCase(actual) == Constants.MOVE_RIGHT) {
 				dron.setOrientacion(Constants.WEST);
-			}else if(actual == Constants.MOVE_ALONG) {
-				if(dron.getEjeY() +1 < maxY) {
+			}else if(Character.toUpperCase(actual) == Constants.MOVE_ALONG) {
+				if(dron.getEjeY() +1 <= maxY) {
 					dron.setEjeY(dron.getEjeY() +1);
 				}else {
-					System.out.println("Lanzar excepcion");
+					throw new OutRangeException("Invalid delivery");
 				}
 					
 			}else {
-				System.out.println("Lanzar excepcion");
+				throw new OutRangeException("Invalid direction");
 			}
 		 
 	 }
 	 
-	 public static void southOrientation(char actual, DestinoDTO dron) {
-		 if(actual == Constants.MOVE_LEFT) {
+	 public static void southOrientation(char actual, DestinoDTO dron) throws OutRangeException {
+		 if(Character.toUpperCase(actual) == Constants.MOVE_LEFT) {
 				dron.setOrientacion(Constants.WEST);
-			}else if(actual == Constants.MOVE_RIGHT) {
+			}else if(Character.toUpperCase(actual) == Constants.MOVE_RIGHT) {
 				dron.setOrientacion(Constants.EAST);
-			}else if(actual == Constants.MOVE_ALONG) {
-				if(dron.getEjeY() -1 > -maxY) {
+			}else if(Character.toUpperCase(actual) == Constants.MOVE_ALONG) {
+				if(dron.getEjeY() -1 >= minY) {
 					dron.setEjeY(dron.getEjeY() -1);
 				}else {
-					System.out.println("Lanzar excepcion");
+					throw new OutRangeException("Invalid delivery");
 				}
 			}else {
-				System.out.println("Lanzar excepcion");
+				throw new OutRangeException("Invalid direction");
 			}
 		 
 	 }
 	 
-	 public static void eastOrientation(char actual, DestinoDTO dron) {
-	 if(actual == Constants.MOVE_LEFT) {
+	 public static void eastOrientation(char actual, DestinoDTO dron) throws OutRangeException {
+	 if(Character.toUpperCase(actual) == Constants.MOVE_LEFT) {
 			dron.setOrientacion(Constants.SOUTH);
-		}else if(actual == Constants.MOVE_RIGHT) {
+		}else if(Character.toUpperCase(actual) == Constants.MOVE_RIGHT) {
 			dron.setOrientacion(Constants.NORTH);
-		}else if(actual == Constants.MOVE_ALONG) {
+		}else if(Character.toUpperCase(actual) == Constants.MOVE_ALONG) {
+			if(dron.getEjeX() -1 >= minX) {
 				dron.setEjeX(dron.getEjeX() -1);
+			}else {
+				throw new OutRangeException("Invalid direction");
+			}
 		}else {
-			System.out.println("Lanzar excepcion");
+			throw new OutRangeException("Invalid direction");
 		}
 	 }
 	 
 	 public static void oeastOrientation(char actual, DestinoDTO dron) {
-	 if(actual == Constants.MOVE_LEFT) {
+	 if(Character.toUpperCase(actual) == Constants.MOVE_LEFT) {
 			dron.setOrientacion(Constants.NORTH);
-		}else if(actual == Constants.MOVE_RIGHT) {
+		}else if(Character.toUpperCase(actual) == Constants.MOVE_RIGHT) {
 			dron.setOrientacion(Constants.SOUTH);
-		}else if(actual == Constants.MOVE_ALONG) {
+		}else if(Character.toUpperCase(actual) == Constants.MOVE_ALONG) {
+			if(dron.getEjeX() +1 <= maxX) {
 				dron.setEjeX(dron.getEjeX() +1);
+			}else {
+				System.out.println("Lanzar excepcion");
+			}
 		}else {
 			System.out.println("Lanzar excepcion");
 		}
@@ -111,6 +125,14 @@ public class Util {
 	           e.printStackTrace();
 	       }
 	   }
+	 
+	 public static void initDron(List<String> drones) {
+		 for (int i = 1; i <= 20; i++) {
+			 drones.add("dron"+i);
+			
+		}
+	       
+	 }
 
 
 }

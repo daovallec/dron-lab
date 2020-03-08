@@ -3,7 +3,6 @@ package com.dron.main;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -18,23 +17,24 @@ import java.util.stream.Collectors;
 import com.dron.constants.Constants;
 import com.dron.dto.DestinoDTO;
 import com.dron.dto.EntregaDTO;
+import com.dron.exception.OutRangeException;
 import com.dron.utils.Util;
 
 public class RunDron {
 	
-	private static int maxY = 10;
-    private static int maxX = 10;
-    
+   
 	 public static void main(String[] args) {
 
+		 
 	       ExecutorService executor = Executors.newFixedThreadPool(10);
-//	       executor.execute(() -> doLongWork("hi 1"));
 
 	       Pattern pattern = Pattern.compile("^[a-aA-Ai-iI-Id-dD-D]*$");
 	       List<String> camino = new ArrayList<>();
-	       List<String> drones = new ArrayList<>();
+	       List<String> availableDrones = new ArrayList<>();
+	       List<String> bussyDrones = new ArrayList<>();
 	       List<DestinoDTO> pathCordenadas = new ArrayList<>();
 	       
+	       Util.initDron(availableDrones);
 	       
 	       try {
 	    	      File myObj = new File("pedidos.txt");
@@ -51,13 +51,18 @@ public class RunDron {
 	    	      System.out.println("An error occurred.");
 	    	      e.printStackTrace();
 	    	    }
-	       
+	       camino.forEach(aaa -> {System.out.println(aaa);});
 	       camino.forEach(name -> {
 	    	   DestinoDTO dron = new DestinoDTO();
 		       dron.setEjeX(0);
 		       dron.setEjeX(0);
 		       dron.setOrientacion(Constants.NORTH);
-		       Util.calcularCordenada(name, dron);
+		       try {
+				Util.calcularCordenada(name, dron);
+			} catch (OutRangeException e) {
+				System.out.println("Invalid delivery");
+				e.printStackTrace();
+			}
 	    	   pathCordenadas.add(dron);
 	       });
 	       
@@ -83,11 +88,16 @@ public class RunDron {
 	    	   EntregaDTO entrega = new EntregaDTO();
 	    	   Boolean added = false;
 	    	   if(!sortedDes.isEmpty()) {
+	    		   if(availableDrones.isEmpty()) {
+	    			   availableDrones.addAll(bussyDrones);
+	    			   bussyDrones.clear();
+	    		   }
 	    		   added = true;
-	    		   entrega.setDronName(drones.get(0));
+	    		   entrega.setDronName(availableDrones.get(0));
 	    		   DestinoDTO e1 = sortedDes.entrySet().iterator().next().getKey();
 	    		   sortedDes.remove(sortedDes.entrySet().iterator().next().getKey());
-	    		   drones.remove(0);
+	    		   bussyDrones.add(availableDrones.get(0));
+	    		   availableDrones.remove(0);
 	    		   entrega.setEntrega1(e1);
 	    		   destinos.add(e1);
 	    	   }
@@ -109,13 +119,13 @@ public class RunDron {
 	       });
 
 	       
-//	       entregas.forEach(camp -> {
-//	    	   System.out.println(camp.getDronName() +": " + camp.getEntrega1().getEjeX() + ", " + camp.getEntrega1().getEjeY());
-//	    	   if( camp.getEntrega2() != null)
-//	    		   System.out.println(camp.getDronName() +": " + camp.getEntrega2().getEjeX() + ", " + camp.getEntrega2().getEjeY());
-//	    	   if( camp.getEntrega3() != null)
-//	    		   System.out.println(camp.getDronName() +": " + camp.getEntrega3().getEjeX() + ", " + camp.getEntrega3().getEjeY());
-//	       });
+	       entregas.forEach(camp -> {
+	    	   System.out.println(camp.getDronName() +": " + camp.getEntrega1().getEjeX() + ", " + camp.getEntrega1().getEjeY());
+	    	   if( camp.getEntrega2() != null)
+	    		   System.out.println(camp.getDronName() +": " + camp.getEntrega2().getEjeX() + ", " + camp.getEntrega2().getEjeY());
+	    	   if( camp.getEntrega3() != null)
+	    		   System.out.println(camp.getDronName() +": " + camp.getEntrega3().getEjeX() + ", " + camp.getEntrega3().getEjeY());
+	       });
 	   }
 
 	 
